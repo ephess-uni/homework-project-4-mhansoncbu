@@ -3,6 +3,7 @@
 from datetime import datetime, timedelta
 from csv import DictReader, DictWriter
 from collections import defaultdict
+from pathlib import Path
 
 
 def reformat_dates(old_dates):
@@ -38,41 +39,37 @@ def add_date_range(values, start_date):
     dates_and_values = zip(dates_to_add, values)
     return list(dates_and_values)
         
-
-
 def fees_report(infile, outfile):
     """Calculates late fees per patron id and writes a summary report to
     outfile."""
 
     book_dict = defaultdict(list)
     format_book_date = '%m/%d/%Y'
-    def date_convert(book_date):
-        date_object = datetime.strptime(book_date, format_book_date)
-    def days_overdue_calc(returned, due):
-        days_overdue_timedelta = returned - due
-    def days_overdue_convert(calcdays):
-        days_convert = int(calcdays.days)
-    def fine_calc(d):
-        fine = (d * .25)
     
     with open(infile) as book_file:
         reader = DictReader(book_file)
-        rows = [row for row in reader]
-        print(rows)
-        for row in rows:
-            date_due_object = date_convert(date_due)
-            date_returned_object = date_convert(date_returned)
-            days_overdue_object = days_overdue_calc(date_returned_object - date_due_object)
-            days_overdue = days_overdue_convert(days_overdue_object)
-            charge = fine_calc(days_overdue)
-            
-            book_dict[row['patron_id']].append(row['charge'])
-
-    late_fees = ["{:.2f}".format(sum(charges)) for patron_id, charges in book_dict.items()]
-
-    writer = csv.DictWriter(outfile, fieldnames =['patron_id', 'late_fees'])
+        book_list = [row for row in reader]
+        for record in book_list:
+            date_due_object = datetime.strptime(record['date_due'], format_book_date) 
+            date_returned_object = datetime.strptime(record['date_returned'], format_book_date)
+            days_overdue_object = date_returned_object - date_due_object
+            days_overdue = int(days_overdue_object.days)
+            if days_overdue > 0:
+                charges = days_overdue * .25
+            else: charges = 0
+            record['fine'] = charges
+            book_dict[record['patron_id']].append(record['fine'])
+    book_fees = list()
+    for patron, fines in book_dict.items():
+        book_fee = {'patron_id': patron, 'late_fees': '{:.2f}'.format(sum(fines))}
+        book_fees.append(book_fee)
+    return book_fees
+   
+    file_path = Path.home()/outfile
+    file = file_path.open(mode = 'w')
+    writer = DictWriter(file, fieldnames = ['patron_id', 'late_fees'])
     writer.writeheader()
-    writer.writerows(outfile)
+    writer.writerow(book_fees)
     file.close()
  
 # The following main selection block will only run when you choose
