@@ -62,11 +62,8 @@ def fees_report(infile, outfile):
         book_dict_not_default = dict(book_dict)
         book_fees = list()
         book_fees = [{'patron_id': patron, 'late_fees': '{:.2f}'.format(sum(fines))} for patron, fines in book_dict_not_default.items()]
-        return book_fees
-            
-        
-         
-    file_path = Path.home()/outfile
+           
+    file_path = Path(outfile)
     file = file_path.open(mode = 'w')
     writer = DictWriter(file, fieldnames = ['patron_id', 'late_fees'])
     writer.writeheader()
