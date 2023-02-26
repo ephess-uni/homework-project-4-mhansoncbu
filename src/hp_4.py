@@ -1,6 +1,6 @@
 # hp_4.py
 #
-from datetime import datetime, timedelta, date
+from datetime import datetime, timedelta
 from csv import DictReader, DictWriter
 from collections import defaultdict
 
@@ -13,8 +13,7 @@ def reformat_dates(old_dates):
     dates_old = [datetime.strptime(date, format_string_old)for date in old_dates]
     dates_new = [datetime.strftime(date, format_string_new) for date in dates_old]
     return dates_new
-        
-   
+      
 def date_range(start, n):
     """For input date string `start`, with format 'yyyy-mm-dd', returns
     a list of of `n` datetime objects starting at `start` where each
@@ -23,7 +22,7 @@ def date_range(start, n):
         raise TypeError('start is not a string.')
     if isinstance(n, int) == False:
         raise TypeError('n is not an integer.')
-    start_date_object = date.fromisoformat(start)
+    start_date_object = datetime.fromisoformat(start)
     date_list = list()
     for x in range(n):
         add_day = timedelta(days=+x)
@@ -35,7 +34,10 @@ def add_date_range(values, start_date):
     """Adds a daily date range to the list `values` beginning with
     `start_date`.  The date, value pairs are returned as tuples
     in the returned list."""
-    pass
+    dates_to_add = date_range(start_date, len(values))
+    dates_and_values = zip(dates_to_add, values)
+    return list(dates_and_values)
+        
 
 
 def fees_report(infile, outfile):
