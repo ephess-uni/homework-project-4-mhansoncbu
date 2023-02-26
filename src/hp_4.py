@@ -45,22 +45,32 @@ def fees_report(infile, outfile):
     outfile."""
 
     book_dict = defaultdict(list)
-    format_book_date = '%m-%d-%Y'
+    format_book_date = '%m/%d/%Y'
+    def date_convert(book_date):
+        date_object = datetime.strptime(book_date, format_book_date)
+    def days_overdue_calc(returned, due):
+        days_overdue_timedelta = returned - due
+    def days_overdue_convert(calcdays):
+        days_convert = int(calcdays.days)
+    def fine_calc(d):
+        fine = (d * .25)
     
     with open(infile) as book_file:
         reader = DictReader(book_file)
-        date_due_object = datetime.strptime('date_due', format_book_date)
-        date_returned_object = datetime.strptime('date_returned', format_book_date)
-        days_overdue_timedelta = date_returned_object - date_due_object
-        days_overdue = int(days_overdue_timedelta.days)
-        fine = (days_overdue * .25)
         rows = [row for row in reader]
+        print(rows)
         for row in rows:
-            book_dict[row['patron_id']].append(row['fine'])
+            date_due_object = date_convert(date_due)
+            date_returned_object = date_convert(date_returned)
+            days_overdue_object = days_overdue_calc(date_returned_object - date_due_object)
+            days_overdue = days_overdue_convert(days_overdue_object)
+            charge = fine_calc(days_overdue)
+            
+            book_dict[row['patron_id']].append(row['charge'])
 
-    late_fees = ["{:.2f}".format(sum(fines)) for patron_id, fines in book_dict.items()]
+    late_fees = ["{:.2f}".format(sum(charges)) for patron_id, charges in book_dict.items()]
 
-    writer = csv.DictWriter(outfile, fieldnames =['patron_id', 'fines'])
+    writer = csv.DictWriter(outfile, fieldnames =['patron_id', 'late_fees'])
     writer.writeheader()
     writer.writerows(outfile)
     file.close()
