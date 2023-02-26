@@ -1,6 +1,6 @@
 # hp_4.py
 #
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 from csv import DictReader, DictWriter
 from collections import defaultdict
 
@@ -19,8 +19,17 @@ def date_range(start, n):
     """For input date string `start`, with format 'yyyy-mm-dd', returns
     a list of of `n` datetime objects starting at `start` where each
     element in the list is one day after the previous."""
-    pass
-
+    if isinstance(start, str) == False:
+        raise TypeError('start is not a string.')
+    if isinstance(n, int) == False:
+        raise TypeError('n is not an integer.')
+    start_date_object = date.fromisoformat(start)
+    date_list = list()
+    for x in range(n):
+        add_day = timedelta(days=+x)
+        next_day = start_date_object + add_day
+        date_list.append(next_day)
+    return date_list
 
 def add_date_range(values, start_date):
     """Adds a daily date range to the list `values` beginning with
