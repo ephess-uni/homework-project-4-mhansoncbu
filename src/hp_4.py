@@ -59,17 +59,18 @@ def fees_report(infile, outfile):
             else: charges = 0
             record['fine'] = charges
             book_dict[record['patron_id']].append(record['fine'])
-    book_fees = list()
-    for patron, fines in book_dict.items():
-        book_fee = {'patron_id': patron, 'late_fees': '{:.2f}'.format(sum(fines))}
-        book_fees.append(book_fee)
-    return book_fees
-   
+        book_dict_not_default = dict(book_dict)
+        book_fees = list()
+        book_fees = [{'patron_id': patron, 'late_fees': '{:.2f}'.format(sum(fines))} for patron, fines in book_dict_not_default.items()]
+        return book_fees
+            
+        
+         
     file_path = Path.home()/outfile
     file = file_path.open(mode = 'w')
     writer = DictWriter(file, fieldnames = ['patron_id', 'late_fees'])
     writer.writeheader()
-    writer.writerow(book_fees)
+    writer.writerows(book_fees)
     file.close()
  
 # The following main selection block will only run when you choose
