@@ -43,9 +43,28 @@ def add_date_range(values, start_date):
 def fees_report(infile, outfile):
     """Calculates late fees per patron id and writes a summary report to
     outfile."""
-    pass
 
+    book_dict = defaultdict(list)
+    format_book_date = '%m-%d-%Y'
+    
+    with open(infile) as book_file:
+        reader = DictReader(book_file)
+        date_due_object = datetime.strptime('date_due', format_book_date)
+        date_returned_object = datetime.strptime('date_returned', format_book_date)
+        days_overdue_timedelta = date_returned_object - date_due_object
+        days_overdue = int(days_overdue_timedelta.days)
+        fine = (days_overdue * .25)
+        rows = [row for row in reader]
+        for row in rows:
+            book_dict[row['patron_id']].append(row['fine'])
 
+    late_fees = ["{:.2f}".format(sum(fines)) for patron_id, fines in book_dict.items()]
+
+    writer = csv.DictWriter(outfile, fieldnames =['patron_id', 'fines'])
+    writer.writeheader()
+    writer.writerows(outfile)
+    file.close()
+ 
 # The following main selection block will only run when you choose
 # "Run -> Module" in IDLE.  Use this section to run test code.  The
 # template code below tests the fees_report function.
